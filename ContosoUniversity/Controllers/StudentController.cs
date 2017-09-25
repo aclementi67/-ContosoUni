@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
-using System.Linq;
-using System.Net;
-using System.Web;
+﻿using System.Net;
 using System.Web.Mvc;
-using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
+using ContosoUniversity.DataAccessLayer;
 
 namespace ContosoUniversity.Controllers
 {
     public class StudentController : Controller
     {
-        private SchoolContext db = new SchoolContext();
+        private StudentCRUD studentCRUD = new StudentCRUD();
 
         // GET: Student
         public ActionResult Index()
         {
-            return View(db.Students.ToList());
+            return View(studentCRUD.StudentList());
         }
 
         // GET: Student/Details/5
@@ -28,7 +22,7 @@ namespace ContosoUniversity.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Student student = db.Students.Find(id);
+            Student student = studentCRUD.Read((int)id);
             if (student == null)
             {
                 return HttpNotFound();
@@ -51,27 +45,18 @@ namespace ContosoUniversity.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Students.Add(student);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (studentCRUD.Create(student))
+                {
+                    return RedirectToAction("Index");
+                }
             }
-
             return View(student);
         }
 
         // GET: Student/Edit/5
         public ActionResult Edit(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Student student = db.Students.Find(id);
-            if (student == null)
-            {
-                return HttpNotFound();
-            }
-            return View(student);
+            return Details(id);
         }
 
         // POST: Student/Edit/5
@@ -83,9 +68,10 @@ namespace ContosoUniversity.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(student).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (studentCRUD.Update(student))
+                {
+                    return RedirectToAction("Index");
+                }
             }
             return View(student);
         }
@@ -93,16 +79,7 @@ namespace ContosoUniversity.Controllers
         // GET: Student/Delete/5
         public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Student student = db.Students.Find(id);
-            if (student == null)
-            {
-                return HttpNotFound();
-            }
-            return View(student);
+            return Details(id);
         }
 
         // POST: Student/Delete/5
@@ -110,17 +87,18 @@ namespace ContosoUniversity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Student student = db.Students.Find(id);
-            db.Students.Remove(student);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            if (studentCRUD.Delete(id))
+            { 
+                return RedirectToAction("Index");
+            }
+            return HttpNotFound();
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                db.Dispose();
+                studentCRUD.Dispose();
             }
             base.Dispose(disposing);
         }

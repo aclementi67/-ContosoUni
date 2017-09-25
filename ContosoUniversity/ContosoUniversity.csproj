@@ -162,6 +162,7 @@
     <Compile Include="Controllers\StudentController.cs" />
     <Compile Include="DataAccessLayer\SchoolContext.cs" />
     <Compile Include="DataAccessLayer\SchoolInitializer.cs" />
+    <Compile Include="DataAccessLayer\StudentCRUD.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
