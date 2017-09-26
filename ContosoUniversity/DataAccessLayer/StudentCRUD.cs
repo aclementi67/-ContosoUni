@@ -40,14 +40,10 @@ namespace ContosoUniversity.DataAccessLayer
 
         public bool Delete(int ID)
         {
-            Student student = Read(ID);
-            if (student != null)
-            {
-                db.Students.Remove(student);
-                db.SaveChanges();
-                return true;
-            }
-            return false;
+            Student studentToDelete = new Student() { ID = ID };
+            db.Entry(studentToDelete).State = EntityState.Deleted; db.SaveChanges();
+            db.SaveChanges();
+            return true;
         }
 
         public void Dispose()
