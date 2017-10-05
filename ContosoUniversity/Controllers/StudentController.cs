@@ -15,12 +15,16 @@ namespace ContosoUniversity.Controllers
         public ActionResult Index(string sortOrder)
         {
             base.ViewBag.LastNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "last_name_desc" : "";
+            base.ViewBag.FirstNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "first_name_desc" : "";
             base.ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
             var students = studentCRUD.StudentList();
             switch (sortOrder)
             {
                 case "last_name_desc":
                     students = students.OrderByDescending(s => s.LastName);
+                    break;
+                case "first_name_desc":
+                    students = students.OrderByDescending(s => s.FirstMidName);
                     break;
                 case "Date":
                     students = students.OrderBy(s => s.EnrollmentDate);
