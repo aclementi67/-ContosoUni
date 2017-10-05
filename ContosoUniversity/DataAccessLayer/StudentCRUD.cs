@@ -10,9 +10,15 @@ namespace ContosoUniversity.DataAccessLayer
     {
         private SchoolContext db = new SchoolContext();
 
-        public List<Student> StudentList()
+        public System.Linq.IQueryable<Student> StudentList()
         {
-            return db.Students.ToList();
+            return db.Students;
+        }
+
+        public System.Linq.IQueryable<Student> SearchStudentList(System.String searchString)
+        {
+            return db.Students.Where(s => s.LastName.Contains(searchString)
+                                       || s.FirstMidName.Contains(searchString));
         }
 
         public bool Create( Student student)

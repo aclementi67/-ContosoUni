@@ -3,6 +3,7 @@ using System.Web.Mvc;
 using ContosoUniversity.Models;
 using ContosoUniversity.DataAccessLayer;
 using System.Data;
+using System.Linq;
 
 namespace ContosoUniversity.Controllers
 {
@@ -11,9 +12,56 @@ namespace ContosoUniversity.Controllers
         private StudentCRUD studentCRUD = new StudentCRUD();
 
         // GET: Student
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder, string searchString)
         {
-            return View(studentCRUD.StudentList());
+            setupViewBag(sortOrder);
+            return View(sortStudentlist(sortOrder, getStudentList(searchString)));
+        }
+
+        private void setupViewBag(string sortOrder)
+        {
+            base.ViewBag.LastNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "last_name_desc" : "";
+            base.ViewBag.FirstNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "first_name_desc" : "";
+            base.ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+        }
+
+        private static System.Collections.Generic.List<Student> sortStudentlist(string sortOrder, IQueryable<Student> students)
+        {
+            switch (sortOrder)
+            {
+                case "last_name_desc":
+                    students = students.OrderByDescending(s => s.LastName);
+                    break;
+                case "first_name_desc":
+                    students = students.OrderByDescending(s => s.FirstMidName);
+                    break;
+                case "Date":
+                    students = students.OrderBy(s => s.EnrollmentDate);
+                    break;
+                case "date_desc":
+                    students = students.OrderByDescending(s => s.EnrollmentDate);
+                    break;
+                default:
+                    students = students.OrderBy(s => s.LastName);
+                    break;
+            }
+
+            return students.ToList();
+        }
+
+        private IQueryable<Student> getStudentList(string searchString)
+        {
+            System.Linq.IQueryable<Student> students;
+            if (System.String.IsNullOrEmpty(searchString))
+            {
+                students = studentCRUD.StudentList();
+            }
+            else
+            {
+                students = studentCRUD.SearchStudentList(searchString);
+            }
+
+            return students;
         }
 
         // GET: Student/Details/5
