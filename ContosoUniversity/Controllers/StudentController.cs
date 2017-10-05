@@ -12,12 +12,21 @@ namespace ContosoUniversity.Controllers
         private StudentCRUD studentCRUD = new StudentCRUD();
 
         // GET: Student
-        public ActionResult Index(string sortOrder)
+        public ActionResult Index(string sortOrder, string searchString)
+        {
+            setupViewBag(sortOrder);
+            return View(sortStudentlist(sortOrder, getStudentList(searchString)));
+        }
+
+        private void setupViewBag(string sortOrder)
         {
             base.ViewBag.LastNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "last_name_desc" : "";
             base.ViewBag.FirstNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "first_name_desc" : "";
             base.ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
-            var students = studentCRUD.StudentList();
+        }
+
+        private static System.Collections.Generic.List<Student> sortStudentlist(string sortOrder, IQueryable<Student> students)
+        {
             switch (sortOrder)
             {
                 case "last_name_desc":
@@ -36,7 +45,23 @@ namespace ContosoUniversity.Controllers
                     students = students.OrderBy(s => s.LastName);
                     break;
             }
-            return View(students.ToList());
+
+            return students.ToList();
+        }
+
+        private IQueryable<Student> getStudentList(string searchString)
+        {
+            System.Linq.IQueryable<Student> students;
+            if (System.String.IsNullOrEmpty(searchString))
+            {
+                students = studentCRUD.StudentList();
+            }
+            else
+            {
+                students = studentCRUD.SearchStudentList(searchString);
+            }
+
+            return students;
         }
 
         // GET: Student/Details/5
