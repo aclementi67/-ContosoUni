@@ -10,9 +10,9 @@ namespace ContosoUniversity.DataAccessLayer
     {
         private SchoolContext db = new SchoolContext();
 
-        public List<Student> StudentList()
+        public System.Linq.IOrderedQueryable<Student> StudentList()
         {
-            return db.Students.ToList();
+            return db.Students;
         }
 
         public bool Create( Student student)
