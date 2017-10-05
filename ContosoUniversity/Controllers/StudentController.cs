@@ -4,6 +4,7 @@ using ContosoUniversity.Models;
 using ContosoUniversity.DataAccessLayer;
 using System.Data;
 using System.Linq;
+using PagedList;
 
 namespace ContosoUniversity.Controllers
 {
@@ -12,17 +13,32 @@ namespace ContosoUniversity.Controllers
         private StudentCRUD studentCRUD = new StudentCRUD();
 
         // GET: Student
-        public ActionResult Index(string sortOrder, string searchString)
+        public ViewResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
-            setupViewBag(sortOrder);
-            return View(sortStudentlist(sortOrder, getStudentList(searchString)));
+            if (searchString == null)
+            {
+                searchString = currentFilter; // allow for paging through a search
+            } else
+            {
+                page = 1; // reset the page for new search
+            }
+
+            setupViewBag(sortOrder, searchString);
+
+            var students = sortStudentlist(sortOrder, getStudentList(searchString));
+
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+            return View(students.ToPagedList(pageNumber, pageSize));
         }
 
-        private void setupViewBag(string sortOrder)
+        private void setupViewBag(string sortOrder, string searchString)
         {
+            base.ViewBag.CurrentSort = sortOrder;
             base.ViewBag.LastNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "last_name_desc" : "";
             base.ViewBag.FirstNameSortParm = System.String.IsNullOrEmpty(sortOrder) ? "first_name_desc" : "";
             base.ViewBag.DateSortParm = sortOrder == "Date" ? "date_desc" : "Date";
+            base.ViewBag.CurrentFilter = searchString;
         }
 
         private static System.Collections.Generic.List<Student> sortStudentlist(string sortOrder, IQueryable<Student> students)
