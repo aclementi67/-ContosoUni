@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json.Linq;
 using ContosoUniversity.DAL;
 using ContosoUniversity.Models;
 
@@ -18,7 +16,19 @@ namespace ContosoUniversity.Controllers
         // GET: Course
         public ActionResult Index()
         {
-            return View(db.Courses.ToList());
+            return View();
+        }
+
+        // GET: CourseJson
+        public JArray IndexJson()
+        {
+            var courses = db.Courses.Select(course => new {
+                course.Title,
+                course.Credits,
+                course.CourseID
+            });
+            JArray result = JArray.FromObject(courses.ToList());
+            return result;
         }
 
         // GET: Course/Details/5

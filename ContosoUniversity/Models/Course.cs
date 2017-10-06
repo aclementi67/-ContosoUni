@@ -10,6 +10,7 @@ namespace ContosoUniversity.Models
         public string Title { get; set; }
         public int Credits { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public virtual ICollection<Enrollment> Enrollments { get; set; }
     }
 }
